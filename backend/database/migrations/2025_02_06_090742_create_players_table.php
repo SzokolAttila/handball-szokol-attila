@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string("nationality", 45)->nullable()->default(null);
             $table->date("date_of_birth");
             $table->integer("height")->nullable()->default(null);
+            $table->integer("number");
         });
     }
 
