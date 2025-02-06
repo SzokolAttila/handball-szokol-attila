@@ -23,6 +23,6 @@ class Team extends Model
     }
     public function currentPlayers()
     {
-        $this->players()->wherePivot("teamId", $this->id)->get();
+        $this->players()->wherePivot("team_id", $this->id)->get();
     }
 }
