@@ -30,7 +30,6 @@ class StorePlayerRequest extends FormRequest
            "height" => ["nullable", "integer", "min:0"],
            "team.id" => ["required", "integer", "exists:teams,id"],
            "team.from" => ["nullable", "integer", "lte:team.to"],
-           "team.to" => ["nullable", "integer"],
         ];
     }
 }
