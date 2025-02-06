@@ -1,0 +1,462 @@
+openapi: "3.0.1"
+info:
+  title: Kézilabdások API
+  description: |
+    A szervernek küldött adatokban a `stadium_size` értéke opcionális, de ha meg van adva, akkor minimum 600 kell legyen.
+  version: 1.0.0
+
+servers:
+  - url: http://backend.vm1.test
+    description: VM1 backend
+  - url: http://backend.vm2.test
+    description: VM2 backend
+  - url: http://backend.vm3.test
+    description: VM3 backend
+  - url: http://backend.vm4.test
+    description: VM4 backend
+  - url: http://backend.vm5.test
+    description: VM5 backend
+
+paths:
+  /api/teams: 
+    get:
+      tags:
+       - Teams
+      summary: Csapatok listájának lekérése
+      description: |
+        Visszaadja az összes csapat adatát a minta szerint
+      responses:
+        '200':
+          description: Csapatok listája
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Team'
+              example: {"data":[{"id":1,"name":"MOL-Pick Szeged","country":"Magyarország","city":"Szeged","stadium":"Városi Sportcsarnok","stadium_size":3200,"current_players":[]},{"id":2,"name":"Telekom Veszprém","country":"Magyarország","city":"Veszprém","stadium":"Veszprém Aréna","stadium_size":5096,"current_players":[{"id":59,"name":"Accambray William","number":20,"position":"ballövő","natinality":null,"date_of_birth":"1988-04-08","height":194},{"id":60,"name":"Blagotinsek Blaz","number":31,"position":"beálló","natinality":null,"date_of_birth":"1994-01-17","height":202}]}]}
+    post:
+      tags:
+       - Teams
+      summary: Új csapat létrehozása
+      description: |
+        A feladata, hogy a JSON-ként kapott adatokat validálja, majd eltárolja az adatbázisba. A létrehozott új rekordot adja is vissza a minta szerint!
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+            example:
+              name: "Új Csapat"
+              country: "Magyarország"
+              city: "Budapest"
+              stadium: "Budapest Aréna"
+              stadium_size: 5000
+      responses:
+        '201':
+          description: Csapat létrehozva
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Team'
+              example:
+                data:
+                  id: 3
+                  name: "Új Csapat"
+                  country: "Magyarország"
+                  city: "Budapest"
+                  stadium: "Budapest Aréna"
+                  stadium_size: 5000
+        '422':
+          description: Érvénytelen adatok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+  /api/teams/{team}:
+    get:
+      tags:
+       - Teams
+      summary: Egy adott csapat lekérése
+      description: |
+        A csapat azonosítója alapján keresse meg a megfelelő rekordot, és adja vissza az adatokat a minta szerint
+      parameters:
+        - name: team
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 2
+      responses:
+        '200':
+          description: Egy adott csapat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Team'
+              example:
+                data:
+                  id: 2
+                  name: "Telekom Veszprém"
+                  country: "Magyarország"
+                  city: "Veszprém"
+                  stadium: "Veszprém Aréna"
+                  stadium_size: 5096
+                  current_players: []
+    put:
+      tags:
+       - Teams
+      summary: Egy adott csapat frissítése
+      description: |
+        A feladata, hogy a JSON-ként kapott adatokat validálja, majd tejes egészében cserélje le az adatbázisban található adatokat. A módosított rekordot adja is vissza a minta szerint!
+      parameters:
+        - name: team
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+            example:
+              name: "Frissített Csapat"
+              country: "Magyarország"
+              city: "Debrecen"
+              stadium: "Debrecen Aréna"
+              stadium_size: 4500
+      responses:
+        '200':
+          description: Csapat frissítve
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Team'
+              example:
+                data:
+                  id: 1
+                  name: "Frissített Csapat"
+                  country: "Magyarország"
+                  city: "Debrecen"
+                  stadium: "Debrecen Aréna"
+                  stadium_size: 4500
+        '422':
+          description: Érvénytelen adatok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+    delete:
+      tags:
+       - Teams
+      summary: Egy adott csapat törlése
+      description: |
+        Törölje ki a megfelelő rekordot az adatbázisból a kapott azonosító alapján.
+      parameters:
+        - name: team
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '204':
+          description: Csapat törölve
+        '404':
+          description: Nem található a keresett elem
+        '500':
+          description: Szerver hiba
+  /api/players:
+    get:
+      tags:
+       - Players
+      summary: Játékosok listájának lekérése
+      description: |
+        Visszaadja az összes játékos adatát a minta szerint
+      responses:
+        '200':
+          description: Játékosok listája
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Player'
+              example: {"data":[{"id":59,"name":"Accambray William","number":20,"position":"ballövő","natinality":null,"date_of_birth":"1988-04-08","height":194,"teams":[{"id":2,"name":"Telekom Veszprém","country":"Magyarország","city":"Veszprém","stadium":"Veszprém Aréna","stadium_size":5096},{"id":10,"name":"Montpellier HB","country":"Franciaország","city":"Montpellier","stadium":null,"stadium_size":null},{"id":11,"name":"Paris Saint-Germain","country":"Franciaország","city":"Párizs","stadium":null,"stadium_size":null}]},{"id":60,"name":"Blagotinsek Blaz","number":31,"position":"beálló","natinality":null,"date_of_birth":"1994-01-17","height":202,"teams":[{"id":2,"name":"Telekom Veszprém","country":"Magyarország","city":"Veszprém","stadium":"Veszprém Aréna","stadium_size":5096},{"id":12,"name":"Rk Celje","country":"Szlovénia","city":"Celje","stadium":null,"stadium_size":null}]}]}
+    post:
+      tags:
+       - Players
+      summary: Új játékos létrehozása
+      description: |
+        A feladata, hogy a JSON-ként kapott adatokat validálja, majd eltárolja az adatbázisba. A létrehozott új rekordot adja is vissza a minta szerint!
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPlayer'
+            example:
+              name: "Új Játékos"
+              position: "támadó"
+              nationality: "Magyar"
+              date_of_birth: "1995-05-05"
+              number: 99
+              height: 180
+              team:
+                id: 1
+                from: 1995
+      responses:
+        '201':
+          description: Játékos létrehozva
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Player'
+              example:
+                data:
+                  id: 3
+                  name: "Új Játékos"
+                  position: "támadó"
+                  nationality: "Magyar"
+                  date_of_birth: "1995-05-05"
+                  height: 180
+                  number: 99
+                  teams:
+                    - {"id":1,"name":"MOL-Pick Szeged","country":"Magyarország","city":"Szeged","stadium":"Városi Sportcsarnok","stadium_size":3200}
+        '422':
+          description: Érvénytelen adatok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+  /api/players/{player}:
+    get:
+      tags:
+       - Players
+      summary: Egy adott játékos lekérése
+      description: |
+        A játékos azonosítója alapján keresse meg a megfelelő rekordot, és adja vissza az adatokat a minta szerint
+      parameters:
+        - name: player
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 60
+      responses:
+        '200':
+          description: Egy adott játékos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Player'
+              example:
+                data: {"id":60,"name":"Blagotinsek Blaz","number":31,"position":"beálló","natinality":null,"date_of_birth":"1994-01-17","height":202,"teams":[{"id":2,"name":"Telekom Veszprém","country":"Magyarország","city":"Veszprém","stadium":"Veszprém Aréna","stadium_size":5096},{"id":12,"name":"Rk Celje","country":"Szlovénia","city":"Celje","stadium":null,"stadium_size":null}]}
+    put:
+      tags:
+       - Players
+      summary: Egy adott játékos frissítése
+      description: |
+        A feladata, hogy a JSON-ként kapott adatokat validálja, majd tejes egészében cserélje le az adatbázisban található adatokat. A módosított rekordot adja is vissza a minta szerint!
+      parameters:
+        - name: player
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Player'
+            example:
+              name: "Frissített Játékos"
+              position: "középpályás"
+              nationality: "Magyar"
+              date_of_birth: "1993-03-03"
+              height: 188
+      responses:
+        '200':
+          description: Játékos frissítve
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Player'
+              example:
+                data:
+                  id: 1
+                  name: "Frissített Játékos"
+                  position: "középpályás"
+                  nationality: "Magyar"
+                  date_of_birth: "1993-03-03"
+                  height: 188
+        '422':
+          description: Érvénytelen adatok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+    delete:
+      tags:
+       - Players
+      summary: Egy adott játékos törlése
+      description: |
+        Törölje ki a megfelelő rekordot az adatbázisból a kapott azonosító alapján.
+      parameters:
+        - name: player
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '204':
+          description: Játékos törölve
+        '404':
+          description: Nem található a keresett elem
+        '500':
+          description: Szerver hiba
+
+components:
+  schemas:
+    Team:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: A csapat azonosítója
+        name:
+          type: string
+          maxLength: 45
+          description: A csapat neve
+        country:
+          type: string
+          maxLength: 45
+          description: Az ország, ahol a csapat van
+        city:
+          type: string
+          maxLength: 30
+          description: A csapat városa
+        stadium:
+          type: string
+          maxLength: 45
+          description: A stadion neve
+        stadium_size:
+          type: integer
+          minimum: 600
+          description: A stadion mérete
+        current_players:
+          type: array
+          items:
+            $ref: '#/components/schemas/Player'
+    Player:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: A játékos azonosítója
+        name:
+          type: string
+          maxLength: 45
+          description: A játékos neve
+        position:
+          type: string
+          maxLength: 45
+          description: A játékos pozíciója
+        nationality:
+          type: string
+          maxLength: 45
+          description: A játékos nemzetisége
+        date_of_birth:
+          type: string
+          format: date
+          description: A játékos születési ideje
+        height:
+          type: integer
+          description: A játékos magassága
+
+
+    NewPlayer:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: A játékos azonosítója
+        name:
+          type: string
+          maxLength: 45
+          description: A játékos neve
+        position:
+          type: string
+          maxLength: 45
+          description: A játékos pozíciója
+        nationality:
+          type: string
+          maxLength: 45
+          description: A játékos nemzetisége
+        date_of_birth:
+          type: string
+          format: date
+          description: A játékos születési ideje
+        height:
+          type: integer
+          description: A játékos magassága
+        team:
+          type: object
+          properties:
+            team_id:
+              type: integer
+              description: A csapat azonosítója
+            from:
+              type: integer
+              description: A játékos ettől az évtől van a csapatnál
