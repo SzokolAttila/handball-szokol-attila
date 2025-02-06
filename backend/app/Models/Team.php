@@ -19,10 +19,7 @@ class Team extends Model
     ];
     public function players() : BelongsToMany 
     {
-        return $this->belongsToMany(Player::class);
-    }
-    public function currentPlayers()
-    {
-        $this->players()->wherePivot("team_id", $this->id)->get();
+        return $this->belongsToMany(Player::class)
+            ->as("currentPlayers");
     }
 }

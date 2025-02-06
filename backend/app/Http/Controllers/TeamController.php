@@ -16,7 +16,7 @@ class TeamController extends Controller
      */
     public function index() : JsonResource
     {
-        return TeamResource::collection(Team::with("currentPlayers")->get());
+        return TeamResource::collection(Team::with("players")->get());
     }
 
     /**
@@ -24,7 +24,7 @@ class TeamController extends Controller
      */
     public function store(StoreTeamRequest $request) : JsonResource
     {
-        return new TeamResource(Team::create($request->validated())->load("currentPlayers"));
+        return new TeamResource(Team::create($request->validated())->load("players"));
     }
 
     /**
@@ -32,7 +32,7 @@ class TeamController extends Controller
      */
     public function show(Team $team) : JsonResource
     {
-        return new TeamResource($team->load("currentPlayers"));
+        return new TeamResource($team->load("players"));
     }
 
     /**
@@ -41,7 +41,7 @@ class TeamController extends Controller
     public function update(UpdateTeamRequest $request, Team $team) : JsonResource
     {
         $team->update($request->validated());
-        return new TeamResource($team->load("currentPlayers"));
+        return new TeamResource($team->load("players"));
     }
 
     /**

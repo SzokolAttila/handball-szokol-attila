@@ -16,7 +16,6 @@ class Player extends Model
         "number",
         "nationality",
         "height",
-        "team"
     ];
     public function teams() : BelongsToMany
     {

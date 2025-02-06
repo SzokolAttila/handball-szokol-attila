@@ -21,7 +21,7 @@ class TeamResource extends JsonResource
             "city" => $this->city,  
             "stadium" => $this->stadium,  
             "stadium_size" => $this->stadium_size,  
-            "current_players" => PlayerResource::collection($this->whenLoaded("currentPlayers")),  
+            "current_players" => PlayerResource::collection($this->whenLoaded("players")),  
         ];
     }
 }
